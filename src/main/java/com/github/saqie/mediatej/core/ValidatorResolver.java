@@ -1,8 +1,6 @@
 package com.github.saqie.mediatej.core;
 
-import com.github.saqie.mediatej.api.Command;
-import com.github.saqie.mediatej.api.CommandBundle;
-import com.github.saqie.mediatej.api.ErrorBuilder;
+import com.github.saqie.mediatej.api.*;
 import com.github.saqie.mediatej.core.configuration.ErrorBuilderInstanceMode;
 import com.github.saqie.mediatej.core.exception.MediateJConflictException;
 
@@ -14,15 +12,23 @@ final class ValidatorResolver {
     private final ErrorBuilder errorBuilder;
     private final ErrorBuilderInstanceMode instanceMode;
 
-    public ValidatorResolver(ErrorBuilder errorBuilder, ErrorBuilderInstanceMode instanceMode) {
-        this.errorBuilder = errorBuilder;
-        this.instanceMode = instanceMode;
+    public ValidatorResolver(MediateConfigurer configurer) {
+        this.errorBuilder = configurer.errorBuilder();
+        this.instanceMode = configurer.errorBuilderInstanceMode();
     }
 
     <T extends Command, R extends ErrorBuilder> void run(T command, CommandBundle<T, R> commandBundle) {
         commandBundle.commandValidator().ifPresent((validator) -> {
             ErrorBuilder builder = getErrorBuilderInstance();
             validator.validate(command, (R) builder);
+            builder.build();
+        });
+    }
+
+    <T extends Request, R extends ErrorBuilder, E> void run(T request, RequestBundle<T, R, E> requestBundle) {
+        requestBundle.requestValidator().ifPresent((validator) -> {
+            ErrorBuilder builder = getErrorBuilderInstance();
+            validator.validate(request, (R) builder);
             builder.build();
         });
     }

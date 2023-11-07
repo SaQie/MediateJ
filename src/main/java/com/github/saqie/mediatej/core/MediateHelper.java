@@ -1,42 +1,46 @@
 package com.github.saqie.mediatej.core;
 
-import com.github.saqie.mediatej.api.Command;
-import com.github.saqie.mediatej.api.CommandHandler;
-import com.github.saqie.mediatej.api.CommandValidator;
-import com.github.saqie.mediatej.api.ErrorBuilder;
-import com.github.saqie.mediatej.core.exception.MediateJMissingArgumentException;
+import com.github.saqie.mediatej.api.*;
 
-import java.lang.reflect.Type;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static com.github.saqie.mediatej.core.Check.requireNotNullGenericParameterTypes;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 final class MediateHelper {
 
-    private static final Pattern PATTERN = Pattern.compile("<(.*?)>$");
-
-    public static <T extends Command> String getGenericParameterNames(CommandHandler<T> commandHandler) {
-        Type[] genericInterfaces = commandHandler.getClass().getGenericInterfaces();
-        requireNotNullGenericParameterTypes(genericInterfaces, commandHandler.getClass().getSimpleName());
-        String typeName = genericInterfaces[0].getTypeName();
-        Matcher matcher = PATTERN.matcher(typeName);
-        if (matcher.find()) {
-            return matcher.group(1).replace('$', '.');
-        }
-        throw new MediateJMissingArgumentException("Handler " + commandHandler.getClass().getSimpleName() + " doesn't have required generic parameter type");
+    public static <T extends Request, R> ClassKeyData getKeyFromClass(RequestHandler<T, R> requestHandler) {
+        return new ClassKeyData(requestHandler);
     }
 
-    public static <T extends Command, R extends ErrorBuilder> String[] getGenericParameterNames(CommandValidator<T, R> commandValidator) {
-        Type[] genericInterfaces = commandValidator.getClass().getGenericInterfaces();
-        requireNotNullGenericParameterTypes(genericInterfaces, commandValidator.getClass().getSimpleName());
-        String commandTypeName = genericInterfaces[0].getTypeName();
-        Matcher matcher = PATTERN.matcher(commandTypeName);
-        if (matcher.find()) {
-            String group = matcher.group(1);
-            return group.split(",");
+    public static <T extends Request, R extends ErrorBuilder> ClassKeyData getKeyFromClass(RequestValidator<T, R> requestValidator) {
+        return new ClassKeyData(requestValidator);
+    }
+
+    public static <T extends Command, R extends ErrorBuilder> ClassKeyData getKeyFromClass(CommandValidator<T, R> commandValidator) {
+        return new ClassKeyData(commandValidator);
+    }
+
+    public static <T extends Command> ClassKeyData getKeyFromClass(CommandHandler<T> commandHandler) {
+        return new ClassKeyData(commandHandler);
+    }
+
+
+    public static <T extends Command, R extends ErrorBuilder> Map<String, CommandValidator<T, R>> resolveValidators(List<CommandValidator<T, R>> commandValidators) {
+        Map<String, CommandValidator<T, R>> tempCommandValidatorMap = new HashMap<>();
+        for (CommandValidator<T, R> commandValidator : commandValidators) {
+            ClassKeyData keyData = MediateHelper.getKeyFromClass(commandValidator);
+            tempCommandValidatorMap.put(keyData.classKey(), commandValidator);
         }
-        throw new MediateJMissingArgumentException("Validator " + commandValidator.getClass().getSimpleName() + " doesn't have required generic parameter types");
+        return tempCommandValidatorMap;
+    }
+
+    public static <T extends Command> Map<String, CommandHandler<T>> resolveHandlers(List<CommandHandler<T>> commandHandlers) {
+        Map<String, CommandHandler<T>> tempCommandHandlerMap = new HashMap<>();
+        for (CommandHandler<T> commandHandler : commandHandlers) {
+            ClassKeyData keyData = MediateHelper.getKeyFromClass(commandHandler);
+            tempCommandHandlerMap.put(keyData.classKey(), commandHandler);
+        }
+        return tempCommandHandlerMap;
     }
 
 }

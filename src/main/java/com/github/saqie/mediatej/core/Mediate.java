@@ -1,35 +1,32 @@
 package com.github.saqie.mediatej.core;
 
-import com.github.saqie.mediatej.api.Command;
-import com.github.saqie.mediatej.api.CommandBundle;
-import com.github.saqie.mediatej.api.ErrorBuilder;
-import com.github.saqie.mediatej.api.MediateJ;
+import com.github.saqie.mediatej.api.*;
 
 import static com.github.saqie.mediatej.core.Check.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public final class Mediate implements MediateJ {
 
-    private final Map<String, CommandBundle<? extends Command, ? extends ErrorBuilder>> commandBundleMap = new HashMap<>();
     private final ValidatorResolver validatorResolver;
+    private final BundleResolver bundleResolver;
 
     public Mediate(MediateConfigurer configurer) {
         requireNonNullArgument(configurer, "Mediate configurer cannot be null");
-        this.commandBundleMap.putAll(configurer.map());
-        this.validatorResolver = new ValidatorResolver(configurer.errorBuilder(), configurer.errorBuilderInstanceMode());
+        this.bundleResolver = new BundleResolver(configurer);
+        this.validatorResolver = new ValidatorResolver(configurer);
         configurer.clear();
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
     public <T extends Command, R extends ErrorBuilder> void send(T command) {
-        requireNonNullArgument(command, "Command cannot be null");
-        CommandBundle<T, R> commandBundle = (CommandBundle<T, R>) commandBundleMap.get(command.getClass().getCanonicalName());
-        requireCommandHandler(command, commandBundle);
+        CommandBundle<T, R> commandBundle = bundleResolver.resolve(command);
         validatorResolver.run(command, commandBundle);
         commandBundle.commandHandler().handle(command);
     }
 
-
+    @Override
+    public <T extends Request, R extends ErrorBuilder, E> E send(T request) {
+        RequestBundle<T, R, E> requestBundle = bundleResolver.resolve(request);
+        validatorResolver.run(request, requestBundle);
+        return requestBundle.requestHandler().handle(request);
+    }
 }

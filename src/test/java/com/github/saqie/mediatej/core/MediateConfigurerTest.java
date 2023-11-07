@@ -26,7 +26,7 @@ class MediateConfigurerTest {
         // then
         assertEquals(HandlerConflictMode.OVERRIDE, configurer.handlerConflictMode());
         assertEquals(ErrorBuilderInstanceMode.ONE, configurer.errorBuilderInstanceMode());
-        assertNotNull(configurer.map());
+        assertNotNull(configurer.commandBundleMap());
         assertNull(configurer.errorBuilder());
     }
 
@@ -44,7 +44,7 @@ class MediateConfigurerTest {
         // then
         assertEquals(HandlerConflictMode.OVERRIDE, configurer.handlerConflictMode());
         assertEquals(ErrorBuilderInstanceMode.PER_SEND, configurer.errorBuilderInstanceMode());
-        assertNotNull(configurer.map());
+        assertNotNull(configurer.commandBundleMap());
         assertNull(configurer.errorBuilder());
     }
 
@@ -99,10 +99,10 @@ class MediateConfigurerTest {
         configurer.register(testCommandHandler);
 
         // then
-        assertEquals(1, configurer.map().size());
-        assertEquals(testCommandHandler, configurer.map().values().iterator().next().commandHandler());
-        assertEquals(MediateTestClassPack.TestCommand.class.getCanonicalName(), configurer.map().keySet().iterator().next());
-        assertFalse(configurer.map().values().iterator().next().commandValidator().isPresent());
+        assertEquals(1, configurer.commandBundleMap().size());
+        assertEquals(testCommandHandler, configurer.commandBundleMap().values().iterator().next().commandHandler());
+        assertEquals(MediateTestClassPack.TestCommand.class.getCanonicalName(), configurer.commandBundleMap().keySet().iterator().next());
+        assertFalse(configurer.commandBundleMap().values().iterator().next().commandValidator().isPresent());
     }
 
     @Test
@@ -135,10 +135,10 @@ class MediateConfigurerTest {
         configurer.register(testCommandHandlerSecond);
 
         // then
-        assertEquals(1, configurer.map().size());
-        assertEquals(testCommandHandlerSecond, configurer.map().values().iterator().next().commandHandler());
-        assertFalse(configurer.map().values().iterator().next().commandValidator().isPresent());
-        assertEquals(MediateTestClassPack.TestCommand.class.getCanonicalName(), configurer.map().keySet().iterator().next());
+        assertEquals(1, configurer.commandBundleMap().size());
+        assertEquals(testCommandHandlerSecond, configurer.commandBundleMap().values().iterator().next().commandHandler());
+        assertFalse(configurer.commandBundleMap().values().iterator().next().commandValidator().isPresent());
+        assertEquals(MediateTestClassPack.TestCommand.class.getCanonicalName(), configurer.commandBundleMap().keySet().iterator().next());
     }
 
     @Test
@@ -228,7 +228,7 @@ class MediateConfigurerTest {
         // then
         MediateJMissingArgumentException exception = assertThrowsExactly(MediateJMissingArgumentException.class,
                 () -> configurer.register(new MediateTestClassPack.TestCommandHandlerWithoutParameters()));
-        assertEquals("Handler " + MediateTestClassPack.TestCommandHandlerWithoutParameters.class.getSimpleName() + " doesn't have required generic parameter type", exception.getMessage());
+        assertEquals("Class " + MediateTestClassPack.TestCommandHandlerWithoutParameters.class.getSimpleName() + " doesn't have required generic interface parameters", exception.getMessage());
     }
 
     @Test
@@ -241,7 +241,7 @@ class MediateConfigurerTest {
         // then
         MediateJMissingArgumentException exception = assertThrowsExactly(MediateJMissingArgumentException.class,
                 () -> configurer.register(new MediateTestClassPack.TestCommandHandler(), new MediateTestClassPack.TestCommandValidatorWithoutParameters()));
-        assertEquals("Validator " + MediateTestClassPack.TestCommandValidatorWithoutParameters.class.getSimpleName() + " doesn't have required generic parameter types", exception.getMessage());
+        assertEquals("Class " + MediateTestClassPack.TestCommandValidatorWithoutParameters.class.getSimpleName() + " doesn't have required generic interface parameters", exception.getMessage());
     }
 
     @Test
@@ -269,7 +269,7 @@ class MediateConfigurerTest {
         // then
         MediateJWrongParameterException exception = assertThrowsExactly(MediateJWrongParameterException.class,
                 () -> configurer.register(new MediateTestClassPack.TestCommandHandler(), new MediateTestClassPack.TestCommandValidatorWithWrongCommandParameter<>()));
-        assertEquals("Wrong command parameter type for validator " + MediateTestClassPack.TestCommandValidatorWithWrongCommandParameter.class.getSimpleName(), exception.getMessage());
+        assertEquals("Wrong first parameter type for validator " + MediateTestClassPack.TestCommandValidatorWithWrongCommandParameter.class.getSimpleName(), exception.getMessage());
     }
 
     @Test
@@ -287,7 +287,7 @@ class MediateConfigurerTest {
         configurer.register(commandBundles);
 
         // then
-        Map<String, CommandBundle<? extends Command, ? extends ErrorBuilder>> map = configurer.map();
+        Map<String, CommandBundle<? extends Command, ? extends ErrorBuilder>> map = configurer.commandBundleMap();
         assertEquals(2, map.size());
         assertNotNull(map.get(MediateTestClassPack.TestCommand.class.getCanonicalName()));
         assertNotNull(map.get(MediateTestClassPack.SecondTestCommand.class.getCanonicalName()));

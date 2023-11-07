@@ -1,8 +1,6 @@
 package com.github.saqie.mediatej.core;
 
-import com.github.saqie.mediatej.api.Command;
-import com.github.saqie.mediatej.api.CommandValidator;
-import com.github.saqie.mediatej.api.ErrorBuilder;
+import com.github.saqie.mediatej.api.*;
 import com.github.saqie.mediatej.core.exception.MediateJMissingArgumentException;
 import com.github.saqie.mediatej.core.exception.MediateJMissingHandlerException;
 import com.github.saqie.mediatej.core.exception.MediateJMissingValidatorException;
@@ -10,8 +8,6 @@ import com.github.saqie.mediatej.core.exception.MediateJWrongParameterException;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
-
-import static com.github.saqie.mediatej.core.MediateHelper.getGenericParameterNames;
 
 
 final class Check {
@@ -34,6 +30,12 @@ final class Check {
         }
     }
 
+    public static void requireRequestHandler(Request r, Object o) {
+        if (o == null) {
+            throw new MediateJMissingHandlerException("Request handler for " + r.getClass().getSimpleName() + " not found");
+        }
+    }
+
     public static <R extends ErrorBuilder, T extends Command> void checkValidatorParameter(CommandValidator<T, R> commandValidator, ErrorBuilder errorBuilder, String validatorName) {
         if (errorBuilder == null) {
             throw new MediateJMissingValidatorException("Error builder not provided ! use .registerErrorBuilder() to register a new error builder");
@@ -49,17 +51,42 @@ final class Check {
         }
     }
 
-    public static <R extends ErrorBuilder, T extends Command> void checkGenericParameterTypes(String key, ErrorBuilder errorBuilder, CommandValidator<T, R> commandValidator) {
-        String[] commandValidatorName = MediateHelper.getGenericParameterNames(commandValidator);
-        String commandName = commandValidatorName[0].trim().replace('$', '.');
-        String validatorName = commandValidatorName[1].trim().replace('$', '.');
-        checkValidatorParameter(commandValidator, errorBuilder, validatorName);
-        checkCommandParameter(key, commandValidator, commandName);
+    public static void checkClassesKeysData(ClassKeyData handlerClassKeyData, ClassKeyData validatorClassKeyData, ErrorBuilder errorBuilder) {
+        requireNotNullErrorBuilder(errorBuilder);
+        requireCorrectErrorBuilderParameter(validatorClassKeyData, errorBuilder);
+        requireCorrectFirstValidatorParameter(handlerClassKeyData, validatorClassKeyData);
     }
+
+    public static void checkClassesKeysData(CommandHandler commandHandler, CommandValidator commandValidator, ErrorBuilder errorBuilder) {
+        ClassKeyData handlerClassKeyData = new ClassKeyData(commandHandler);
+        ClassKeyData validatorClassKeyData = new ClassKeyData(commandValidator);
+        checkClassesKeysData(handlerClassKeyData, validatorClassKeyData, errorBuilder);
+    }
+
 
     public static void requireNotNullGenericParameterTypes(Type[] types, String targetClassName) {
         if (types == null || types.length < 1 || types[0].getTypeName().isEmpty()) {
             throw new MediateJMissingArgumentException("Class " + targetClassName + " doesn't have require generic command parameter");
         }
     }
+
+    public static void requireNotNullErrorBuilder(ErrorBuilder errorBuilder) {
+        if (errorBuilder == null) {
+            throw new MediateJMissingValidatorException("Error builder not provided ! use .registerErrorBuilder() to register a new error builder");
+        }
+    }
+
+    private static void requireCorrectErrorBuilderParameter(ClassKeyData validatorClassKeyData, ErrorBuilder errorBuilder) {
+        if (!validatorClassKeyData.validatorKey().equals(errorBuilder.getClass().getCanonicalName())) {
+            throw new MediateJWrongParameterException("Wrong error builder parameter type for validator " + validatorClassKeyData.validatorName());
+        }
+    }
+
+    private static void requireCorrectFirstValidatorParameter(ClassKeyData handlerClassKeyData, ClassKeyData validatorClassKeyData) {
+        if (!handlerClassKeyData.classKey().equals(validatorClassKeyData.classKey())) {
+            throw new MediateJWrongParameterException("Wrong first parameter type for validator " + validatorClassKeyData.validatorName());
+        }
+    }
+
+
 }
