@@ -25,7 +25,7 @@ final class ValidatorResolver {
         });
     }
 
-    <T extends Request, R extends ErrorBuilder, E> void run(T request, RequestBundle<T, R, E> requestBundle) {
+    <T extends Request<E>, R extends ErrorBuilder, E> void run(T request, RequestBundle<T, R, E> requestBundle) {
         requestBundle.requestValidator().ifPresent((validator) -> {
             ErrorBuilder builder = getErrorBuilderInstance();
             validator.validate(request, (R) builder);

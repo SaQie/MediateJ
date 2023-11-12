@@ -26,7 +26,7 @@ final class BundleResolver {
     }
 
     @SuppressWarnings("unchecked")
-    <T extends Request, R extends ErrorBuilder, E> RequestBundle<T, R, E> resolve(T request) {
+    <T extends Request<E>, R extends ErrorBuilder, E> RequestBundle<T, R, E> resolve(T request) {
         requireNonNullArgument(request, "Request cannot be null");
         RequestBundle<T, R, E> requestBundle = (RequestBundle<T, R, E>) requestBundleMap.get(request.getClass().getCanonicalName());
         requireRequestHandler(request, requestBundle);

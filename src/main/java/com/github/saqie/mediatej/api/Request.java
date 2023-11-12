@@ -1,4 +1,4 @@
 package com.github.saqie.mediatej.api;
 
-public interface Request {
+public interface Request<T> {
 }

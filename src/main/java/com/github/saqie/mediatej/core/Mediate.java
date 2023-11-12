@@ -1,6 +1,7 @@
 package com.github.saqie.mediatej.core;
 
 import com.github.saqie.mediatej.api.*;
+import com.github.saqie.mediatej.core.exception.MediateJMissingHandlerException;
 
 import static com.github.saqie.mediatej.core.Check.*;
 
@@ -16,6 +17,12 @@ public final class Mediate implements MediateJ {
         configurer.clear();
     }
 
+    /**
+     * Sends command to proper handler
+     * Throws {@link MediateJMissingHandlerException} if the handler can't be found
+     *
+     * @param command -> Command instance to send
+     */
     @Override
     public <T extends Command, R extends ErrorBuilder> void send(T command) {
         CommandBundle<T, R> commandBundle = bundleResolver.resolve(command);
@@ -23,8 +30,14 @@ public final class Mediate implements MediateJ {
         commandBundle.commandHandler().handle(command);
     }
 
+    /**
+     * Sends request to proper handler
+     * Throws {@link MediateJMissingHandlerException} if the handler can't be found
+     *
+     * @param request -> Request instance to send
+     */
     @Override
-    public <T extends Request, R extends ErrorBuilder, E> E send(T request) {
+    public <T extends Request<E>, R extends ErrorBuilder, E> E send(T request) {
         RequestBundle<T, R, E> requestBundle = bundleResolver.resolve(request);
         validatorResolver.run(request, requestBundle);
         return requestBundle.requestHandler().handle(request);

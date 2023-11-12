@@ -2,7 +2,7 @@ package com.github.saqie.mediatej.api;
 
 import java.util.Optional;
 
-public class RequestBundle<T extends Request, R extends ErrorBuilder, E> {
+public class RequestBundle<T extends Request<E>, R extends ErrorBuilder, E> {
 
     private final RequestHandler<T, E> requestHandler;
     private final RequestValidator<T, R> requestValidator;
