@@ -30,12 +30,6 @@ final class Check {
         }
     }
 
-    public static void requireRequestHandler(Request r, Object o) {
-        if (o == null) {
-            throw new MediateJMissingHandlerException("Request handler for " + r.getClass().getSimpleName() + " not found");
-        }
-    }
-
     public static <R extends ErrorBuilder, T extends Command> void checkValidatorParameter(CommandValidator<T, R> commandValidator, ErrorBuilder errorBuilder, String validatorName) {
         if (errorBuilder == null) {
             throw new MediateJMissingValidatorException("Error builder not provided ! use .registerErrorBuilder() to register a new error builder");

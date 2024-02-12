@@ -2,8 +2,6 @@ package com.github.saqie.mediatej.core;
 
 import com.github.saqie.mediatej.api.CommandHandler;
 import com.github.saqie.mediatej.api.CommandValidator;
-import com.github.saqie.mediatej.api.RequestHandler;
-import com.github.saqie.mediatej.api.RequestValidator;
 import com.github.saqie.mediatej.core.exception.MediateJMissingArgumentException;
 
 import java.lang.reflect.Type;
@@ -19,15 +17,9 @@ class ClassKeyData {
 
     private String classKey;
     private String validatorKey;
-    private String className;
-    private String validatorName;
+    private final String className;
+    private final String validatorName;
 
-
-    public ClassKeyData(RequestHandler requestHandler) {
-        extractClassKeyData(requestHandler.getClass().getGenericInterfaces(), requestHandler.getClass().getSimpleName());
-        this.className = requestHandler.getClass().getSimpleName();
-        this.validatorName = "";
-    }
 
     public ClassKeyData(CommandHandler commandHandler) {
         extractClassKeyData(commandHandler.getClass().getGenericInterfaces(), commandHandler.getClass().getSimpleName());
@@ -38,12 +30,6 @@ class ClassKeyData {
     public ClassKeyData(CommandValidator commandValidator) {
         extractClassKeyData(commandValidator.getClass().getGenericInterfaces(), commandValidator.getClass().getSimpleName());
         this.validatorName = commandValidator.getClass().getSimpleName();
-        this.className = "";
-    }
-
-    public ClassKeyData(RequestValidator requestValidator) {
-        extractClassKeyData(requestValidator.getClass().getGenericInterfaces(), requestValidator.getClass().getSimpleName());
-        this.validatorName = requestValidator.getClass().getSimpleName();
         this.className = "";
     }
 

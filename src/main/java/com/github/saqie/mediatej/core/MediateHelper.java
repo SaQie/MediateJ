@@ -8,14 +8,6 @@ import java.util.Map;
 
 final class MediateHelper {
 
-    public static <T extends Request<R>, R> ClassKeyData getKeyFromClass(RequestHandler<T, R> requestHandler) {
-        return new ClassKeyData(requestHandler);
-    }
-
-    public static <T extends Request<E>, R extends ErrorBuilder, E> ClassKeyData getKeyFromClass(RequestValidator<T, R> requestValidator) {
-        return new ClassKeyData(requestValidator);
-    }
-
     public static <T extends Command, R extends ErrorBuilder> ClassKeyData getKeyFromClass(CommandValidator<T, R> commandValidator) {
         return new ClassKeyData(commandValidator);
     }

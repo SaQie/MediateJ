@@ -25,14 +25,6 @@ final class ValidatorResolver {
         });
     }
 
-    <T extends Request<E>, R extends ErrorBuilder, E> void run(T request, RequestBundle<T, R, E> requestBundle) {
-        requestBundle.requestValidator().ifPresent((validator) -> {
-            ErrorBuilder builder = getErrorBuilderInstance();
-            validator.validate(request, (R) builder);
-            builder.build();
-        });
-    }
-
     private ErrorBuilder getErrorBuilderInstance() {
         if (ErrorBuilderInstanceMode.PER_SEND == instanceMode) {
             return getInstance();

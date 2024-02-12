@@ -12,14 +12,4 @@ public interface MediateJ {
      */
     <T extends Command, R extends ErrorBuilder> void send(T command);
 
-    /**
-     * Sends request to proper handler
-     * Throws {@link MediateJMissingHandlerException} if the handler can't be found
-     *
-     * @param request -> Request instance to send
-     * @param <E>     -> Object to return
-     */
-    <T extends Request<E>, R extends ErrorBuilder, E> E send(T request);
-
-
 }

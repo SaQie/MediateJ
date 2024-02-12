@@ -29,17 +29,4 @@ public final class Mediate implements MediateJ {
         validatorResolver.run(command, commandBundle);
         commandBundle.commandHandler().handle(command);
     }
-
-    /**
-     * Sends request to proper handler
-     * Throws {@link MediateJMissingHandlerException} if the handler can't be found
-     *
-     * @param request -> Request instance to send
-     */
-    @Override
-    public <T extends Request<E>, R extends ErrorBuilder, E> E send(T request) {
-        RequestBundle<T, R, E> requestBundle = bundleResolver.resolve(request);
-        validatorResolver.run(request, requestBundle);
-        return requestBundle.requestHandler().handle(request);
-    }
 }

@@ -79,7 +79,6 @@ public final class MediateConfigurer {
 
         scaleDownToCommandBundleMap(tempCommandHandlerMap, tempCommandValidatorMap);
 
-        // TODO musisz sprawdzic czy nie podano walidatora ktory przypadkiem nie ma odpowiednika w command handlerze
         return this;
     }
 
@@ -108,10 +107,6 @@ public final class MediateConfigurer {
 
     Map<String, CommandBundle<? extends Command, ? extends ErrorBuilder>> commandBundleMap() {
         return commandBundleMap;
-    }
-
-    Map<String, RequestBundle<? extends Request, ? extends ErrorBuilder, ?>> requestBundleMap() {
-        return requestBundleMap();
     }
 
     ErrorBuilder errorBuilder() {

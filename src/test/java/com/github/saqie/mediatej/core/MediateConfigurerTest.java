@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MediateConfigurerTest {
 
-
     @Test
     @DisplayName("Should set default parameters values when create mediate configurer via constructor")
     public void shouldSetDefaultParameterValuesWhenCreateMediateConfigurer() {
