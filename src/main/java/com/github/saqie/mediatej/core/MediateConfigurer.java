@@ -74,11 +74,17 @@ public final class MediateConfigurer {
         requireNotNullArgument(commandHandlers, "Command handlers cannot be null");
         requireNotNullArgument(commandValidators, "Command validators cannot be null");
 
-        Map<String, CommandHandler<T>> tempCommandHandlerMap = MediateHelper.resolveHandlers(commandHandlers);
+        // Resolve handlers
+        Map<String, CommandHandler<T>> tempCommandHandlerMap = new HashMap<>();
+        commandHandlers.forEach(handler -> {
+            ClassKeyData keyData = MediateHelper.getKeyFromClass(handler);
+            checkHandlerConflicts(keyData, tempCommandHandlerMap);
+            tempCommandHandlerMap.put(keyData.classKey(), handler);
+        });
+
         Map<String, CommandValidator<T, R>> tempCommandValidatorMap = MediateHelper.resolveValidators(commandValidators);
 
         scaleDownToCommandBundleMap(tempCommandHandlerMap, tempCommandValidatorMap);
-
         return this;
     }
 
@@ -105,6 +111,39 @@ public final class MediateConfigurer {
         this.commandBundleMap.clear();
     }
 
+    private void checkHandlerConflicts(ClassKeyData keyData) {
+        if (HandlerConflictMode.THROW_EXCEPTION == handlerConflictMode) {
+            if (commandBundleMap.containsKey(keyData.classKey())) {
+                throw new MediateJConflictException("Handler for " + keyData.classKey() + " is already registered");
+            }
+        }
+    }
+
+    private <T extends Command> void checkHandlerConflicts(ClassKeyData keyData, Map<String, CommandHandler<T>> commandHanderMap) {
+        if (HandlerConflictMode.THROW_EXCEPTION == handlerConflictMode) {
+            if (commandHanderMap.containsKey(keyData.classKey())) {
+                throw new MediateJConflictException("Handler for " + keyData.classKey() + " is already registered");
+            }
+        }
+    }
+
+    private <T extends Command, R extends ErrorBuilder> void scaleDownToCommandBundleMap(Map<String, CommandHandler<T>> tempCommandHandlerMap, Map<String, CommandValidator<T, R>> tempCommandValidatorMap) {
+        for (String key : tempCommandHandlerMap.keySet()) {
+            CommandHandler<T> commandHandler = tempCommandHandlerMap.get(key);
+            if (tempCommandValidatorMap.containsKey(key)) {
+                CommandValidator<T, R> commandValidator = tempCommandValidatorMap.get(key);
+
+                ClassKeyData handlerClassKeyData = new ClassKeyData(commandHandler);
+                ClassKeyData validatorClassKeyData = new ClassKeyData(commandValidator);
+                checkClassesKeysData(handlerClassKeyData, validatorClassKeyData, errorBuilder);
+
+                commandBundleMap.put(key, new CommandBundle<>(commandHandler, commandValidator));
+            } else {
+                commandBundleMap.put(key, new CommandBundle<>(commandHandler, null));
+            }
+        }
+    }
+
     Map<String, CommandBundle<? extends Command, ? extends ErrorBuilder>> commandBundleMap() {
         return commandBundleMap;
     }
@@ -119,26 +158,5 @@ public final class MediateConfigurer {
 
     HandlerConflictMode handlerConflictMode() {
         return handlerConflictMode;
-    }
-
-    private void checkHandlerConflicts(ClassKeyData keyData) {
-        if (HandlerConflictMode.THROW_EXCEPTION == handlerConflictMode) {
-            if (commandBundleMap.containsKey(keyData.classKey())) {
-                throw new MediateJConflictException("Handler for " + keyData.classKey() + " is already registered");
-            }
-        }
-    }
-
-    private <T extends Command, R extends ErrorBuilder> void scaleDownToCommandBundleMap(Map<String, CommandHandler<T>> tempCommandHandlerMap, Map<String, CommandValidator<T, R>> tempCommandValidatorMap) {
-        for (String key : tempCommandHandlerMap.keySet()) {
-            CommandHandler<T> commandHandler = tempCommandHandlerMap.get(key);
-            if (tempCommandValidatorMap.containsKey(key)) {
-                CommandValidator<T, R> commandValidator = tempCommandValidatorMap.get(key);
-                checkClassesKeysData(commandHandler, commandValidator, errorBuilder);
-                commandBundleMap.put(key, new CommandBundle<>(commandHandler, commandValidator));
-            } else {
-                commandBundleMap.put(key, new CommandBundle<>(commandHandler, null));
-            }
-        }
     }
 }

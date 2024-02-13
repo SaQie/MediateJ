@@ -35,7 +35,7 @@ class MediateCoreConfigurerTest {
 
         // then
         assertEquals(HandlerConflictMode.OVERRIDE, coreConfigurer.handlerConflictMode());
-        assertEquals(ErrorBuilderInstanceMode.ONE, coreConfigurer.errorBuilderInstanceMode());
+        assertEquals(ErrorBuilderInstanceMode.PER_SEND, coreConfigurer.errorBuilderInstanceMode());
     }
 
     @Test

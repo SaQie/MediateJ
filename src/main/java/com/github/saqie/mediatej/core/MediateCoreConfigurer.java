@@ -31,7 +31,7 @@ public final class MediateCoreConfigurer {
     }
 
     ErrorBuilderInstanceMode errorBuilderInstanceMode() {
-        return errorBuilderInstanceMode == null ? ErrorBuilderInstanceMode.ONE : errorBuilderInstanceMode;
+        return errorBuilderInstanceMode == null ? ErrorBuilderInstanceMode.PER_SEND : errorBuilderInstanceMode;
     }
 
 

@@ -6,7 +6,7 @@
 
     <groupId>io.github.saqie</groupId>
     <artifactId>MediateJ</artifactId>
-    <version>1.0</version>
+    <version>4.0-SNAPSHOT</version>
     <name>MediateJ</name>
     <url>https://github.com/saqie/MediateJ/</url>
     <description>Lightweight Java Command-Handler library</description>

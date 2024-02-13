@@ -1,6 +1,8 @@
 package com.github.saqie.mediatej.core;
 
 import com.github.saqie.mediatej.api.*;
+import com.github.saqie.mediatej.core.configuration.HandlerConflictMode;
+import com.github.saqie.mediatej.core.exception.MediateJConflictException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,5 +36,4 @@ final class MediateHelper {
         }
         return tempCommandHandlerMap;
     }
-
 }

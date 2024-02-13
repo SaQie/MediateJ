@@ -51,12 +51,6 @@ final class Check {
         requireCorrectFirstValidatorParameter(handlerClassKeyData, validatorClassKeyData);
     }
 
-    public static void checkClassesKeysData(CommandHandler commandHandler, CommandValidator commandValidator, ErrorBuilder errorBuilder) {
-        ClassKeyData handlerClassKeyData = new ClassKeyData(commandHandler);
-        ClassKeyData validatorClassKeyData = new ClassKeyData(commandValidator);
-        checkClassesKeysData(handlerClassKeyData, validatorClassKeyData, errorBuilder);
-    }
-
 
     public static void requireNotNullGenericParameterTypes(Type[] types, String targetClassName) {
         if (types == null || types.length < 1 || types[0].getTypeName().isEmpty()) {

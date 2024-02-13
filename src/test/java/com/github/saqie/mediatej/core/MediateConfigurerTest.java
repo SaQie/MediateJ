@@ -24,7 +24,7 @@ class MediateConfigurerTest {
 
         // then
         assertEquals(HandlerConflictMode.OVERRIDE, configurer.handlerConflictMode());
-        assertEquals(ErrorBuilderInstanceMode.ONE, configurer.errorBuilderInstanceMode());
+        assertEquals(ErrorBuilderInstanceMode.PER_SEND, configurer.errorBuilderInstanceMode());
         assertNotNull(configurer.commandBundleMap());
         assertNull(configurer.errorBuilder());
     }
